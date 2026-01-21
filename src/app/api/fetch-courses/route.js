@@ -11,7 +11,7 @@ export async function GET(request) {
 
     try {
         const tableUrl = `https://obs.itu.edu.tr/public/DersProgram/DersProgramSearch?programSeviyeTipiAnahtari=LS&dersBransKoduId=${branchId}`;
-        const tableResponse = await fetch(tableUrl);
+        const tableResponse = await fetch(tableUrl, {next: { revalidate: 300 }});
         const html = await tableResponse.text();
 
         const $ = cheerio.load(html);
@@ -29,10 +29,14 @@ export async function GET(request) {
             const buildings = $(cols[5]).find("a").html()?.split("<br>") || [];
             const days = $(cols[6]).html()?.split('<br>') || [];
             const times = $(cols[7]).html()?.split('<br>') || [];
+            const classrooms = $(cols[8]).html()?.split('<br>') || [];
+            const capacity = $(cols[9]).text().trim();
+            const enrolled = $(cols[10]).text().trim();
 
             days.forEach((dayRaw, index) => {
                 const timeRaw = times[index] || "";
                 const buildingRaw = buildings[index] || buildings[0] || "";
+                const classroomRaw = classrooms[index] || classrooms[0] || "";
 
                 if (!dayRaw || !timeRaw) return;
 
@@ -48,6 +52,9 @@ export async function GET(request) {
                     day: dayRaw.trim(),
                     startTime: start?.trim(),
                     endTime: end?.trim(),
+                    classroom: classroomRaw.trim(),
+                    capacity,
+                    enrolled
                 });
             });
         });
