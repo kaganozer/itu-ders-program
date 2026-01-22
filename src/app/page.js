@@ -1,65 +1,53 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Header from "../components/Header";
 import CourseGrid from "../components/CourseGrid";
 import { compareTimes } from "../utils/helpers";
 
+import dbData from "../data/courses.json";
+
 export default function Home() {
-  const [branchCode, setBranchCode] = useState("MAT");
-  const [branchList, setBranchList] = useState([]);
-  const [courseCodeFilter, setCourseCodeFilter] = useState("226");
+  const [branchList] = useState(dbData.branches.map(code => ({ code })));
+
+  const [crnFilter, setCrnFilter] = useState("");
+  const [branchCodeFilter, setBranchCodeFilter] = useState("FIZ");
+  const [courseCodeFilter, setCourseCodeFilter] = useState("");
+  const [courseTitleFilter, setCourseTitleFilter] = useState("");
+  const [instructorFilter, setInstructorFilter] = useState("");
+
   const [scheduleData, setScheduleData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [savedCourses, setSavedCourses] = useState([]);
   const [showSaved, setShowSaved] = useState(false);
 
-  useEffect(() => {
-    const getBranches = async () => {
-      try {
-        const res = await fetch("/api/fetch-branches");
-        const data = await res.json();
-        if (Array.isArray(data)) setBranchList(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    getBranches();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    setScheduleData([]);
+  const handleFilter = () => {
     setOpenDropdownId(null);
 
-    try {
-      const selectedBranchObj = branchList.find(b => b.code === branchCode);
-      if (!selectedBranchObj) throw new Error("Branş bulunamadı.");
-
-      const res = await fetch(`/api/fetch-courses?branchId=${selectedBranchObj.id}`);
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-
-      const filtered = json.data.filter(course => {
-        const currentCourseCode = course.courseCode.split(" ").at(-1);
-        return currentCourseCode === courseCodeFilter || currentCourseCode === courseCodeFilter + "E";
-      });
-      setScheduleData(filtered);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const filters = {
+      branch: branchCodeFilter,
+      crn: crnFilter.trim(),
+      branchCode: branchCodeFilter.trim().toUpperCase(),
+      courseCode: courseCodeFilter.trim().toUpperCase(),
+      title: courseTitleFilter.trim().toLocaleUpperCase("tr-TR"),
+      instructor: instructorFilter.trim().toLocaleUpperCase("tr-TR")
+    };
+    const filtered = dbData.courses.filter(course => {
+      if (filters.crn && course.crn !== filters.crn) return false;
+      if (filters.branchCode && course.branchCode !== filters.branchCode) return false;
+      if (filters.courseCode && course.courseCode !== filters.courseCode) return false;
+      if (filters.title && !course.courseTitle.toLocaleUpperCase("tr-TR").includes(filters.title)) return false;
+      if (filters.instructor && !course.instructor.toLocaleUpperCase("tr-TR").includes(filters.instructor)) return false;
+      return true;
+    });
+    setScheduleData(filtered);
+  }
 
   const toggleCourse = (course) => {
     setSavedCourses((prev) => {
       const exists = prev.find((c) => c.crn === course.crn);
       return exists
         ? prev.filter((c) => c.crn !== course.crn)
-        : [...prev, ...scheduleData.filter(c => c.crn === course.crn)];
+        : [...prev, ...dbData.courses.filter(c => c.crn === course.crn)];
     });
   };
 
@@ -72,7 +60,13 @@ export default function Home() {
     activeData.forEach(course => {
       const key = `${course.day}-${course.startTime}`;
       if (!groups[key]) {
-        groups[key] = { key, day: course.day, startTime: course.startTime, endTime: course.endTime, courses: [] };
+        groups[key] = {
+          key,
+          day: course.day,
+          startTime: course.startTime,
+          endTime: course.endTime,
+          courses: []
+        };
       }
       if (compareTimes(course.endTime, groups[key].endTime) > 0) {
         groups[key].endTime = course.endTime;
@@ -85,15 +79,16 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-black p-8 font-sans">
       <Header
-        branchCode={branchCode} setBranchCode={setBranchCode}
         branchList={branchList}
+        crnFilter={crnFilter} setCrnFilter={setCrnFilter}
+        branchCode={branchCodeFilter} setBranchCode={setBranchCodeFilter}
         courseCodeFilter={courseCodeFilter} setCourseCodeFilter={setCourseCodeFilter}
-        fetchData={fetchData} loading={loading}
+        courseTitleFilter={courseTitleFilter} setCourseTitleFilter={setCourseTitleFilter}
+        instructorFilter={instructorFilter} setInstructorFilter={setInstructorFilter}
+        handleFilter={handleFilter}
         savedCourses={savedCourses} setSavedCourses={setSavedCourses}
         showSaved={showSaved} setShowSaved={setShowSaved}
       />
-
-      {error && <div className="text-red-600 mb-4 font-bold">Hata: {error}</div>}
 
       <CourseGrid
         groupCourses={groupCourses}
@@ -102,6 +97,17 @@ export default function Home() {
         toggleCourse={toggleCourse}
         isSaved={isSaved}
       />
+
+      <a
+        className="fixed bottom-10 left-10 text-[16px] text-blue-600 hover:underline"
+        href="https://github.com/kaganozer/"
+      >
+        Hamza Kağan Özer
+      </a>
+
+      <div className="fixed bottom-10 right-10 text-[16px] text-gray9500">
+        En son {new Date(dbData.lastUpdated).toLocaleString("tr-TR")} tarihinde güncellendi.
+      </div>
     </div>
   );
 }

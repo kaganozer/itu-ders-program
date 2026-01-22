@@ -1,4 +1,4 @@
-import { getGridRow, getDurationSpan, rowColors, dayMapping } from "../utils/helpers";
+import { getGridRow, getDurationSpan, rowColors, dayMapping, compareTimes } from "../utils/helpers";
 
 export default function CourseCard({ group, openDropdownId, setOpenDropdownId, toggleCourse, isSaved }) {
 
@@ -9,7 +9,8 @@ export default function CourseCard({ group, openDropdownId, setOpenDropdownId, t
   const span = getDurationSpan(group.startTime, group.endTime);
   const colorClass = rowColors[(rowStart - 2) % rowColors.length] || "bg-gray-600";
 
-  const mainCourse = group.courses[0];
+  const sortedCourses = [...group.courses].sort((a, b) => compareTimes(b.endTime, a.endTime));
+  const mainCourse = sortedCourses[0];
   const count = group.courses.length;
   const isOpen = openDropdownId === group.key;
   const popupPositionClass = ["Perşembe", "Cuma"].includes(group.day) ? "right-full mr-2 origin-top-right" : "left-full ml-2 origin-top-left";
@@ -30,7 +31,7 @@ export default function CourseCard({ group, openDropdownId, setOpenDropdownId, t
       `}>
 
         <div className="flex justify-between items-baseline border-b border-white/40 pb-0.5 mb-1">
-          <div className="font-bold text-sm leading-none">{mainCourse.crn} - {mainCourse.courseCode}</div>
+          <div className="font-bold text-sm leading-none">{mainCourse.crn} - {mainCourse.branchCode} {mainCourse.courseCode}</div>
           <div className="text-[12px] opacity-90 bg-black/30 px-1 py-1 rounded leading-none ml-1 whitespace-nowrap">{mainCourse.startTime}-{mainCourse.endTime}</div>
         </div>
 
@@ -68,16 +69,16 @@ export default function CourseCard({ group, openDropdownId, setOpenDropdownId, t
             <button onClick={() => setOpenDropdownId(null)} className="cursor-pointer text-gray-400 hover:text-white font-bold px-2">✕</button>
           </div>
           <div className="max-h-60 overflow-y-auto flex flex-col gap-2 custom-scrollbar">
-            {group.courses.map((course, idx) => {
+            {sortedCourses.map((course, idx) => {
               const isThisSaved = isSaved(course.crn);
               return (
                 <div key={course.crn} className={`relative p-2 rounded ${idx === 0 ? 'bg-red-900/50 border border-red-600' : 'bg-gray-800 hover:bg-gray-700'}`}>
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm">{course.crn} - {course.courseCode}</span>
+                    <span className="font-bold text-sm">{course.crn} - {mainCourse.branchCode} {course.courseCode}</span>
                     <span className="text-[10px] bg-white/20 px-1 rounded">{course.startTime}-{course.endTime}</span>
                   </div>
                   <div className="text-xs text-gray-300 mt-1">{course.instructor}</div>
-                  <div className="text-xs font-mono text-yellow-200">{course.courseFormat} - {course.building}</div>
+                  <div className="text-xs font-mono text-yellow-200">{course.courseFormat} - {course.building} {course.classroom}</div>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleCourse(course); }}
                     className={`absolute bottom-2 right-2 bg-black/30 hover:bg-black/60 cursor-pointer text-xs px-1.5 py-0.5 rounded`}

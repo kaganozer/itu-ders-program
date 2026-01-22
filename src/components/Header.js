@@ -1,136 +1,183 @@
 import { useState } from "react";
 
 export default function Header({
-  branchCode, setBranchCode,
-  branchList,
+  branchCode, setBranchCode, branchList,
+
+  crnFilter, setCrnFilter,
   courseCodeFilter, setCourseCodeFilter,
-  fetchData, loading,
+  courseTitleFilter, setCourseTitleFilter,
+  instructorFilter, setInstructorFilter,
+
+  handleFilter,
+
   savedCourses, setSavedCourses,
   showSaved, setShowSaved
 }) {
   const [isBranchOpen, setIsBranchOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [branchSearch, setBranchSearch] = useState("");
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleFilter();
+  };
 
   const uniqueCRNs = [...new Set(savedCourses.map(course => course.crn))];
 
   return (
-    <div className="flex justify-between items-center mb-8 border-b-2 border-black pb-4">
-      {/* Arama Paneli */}
-      <div className={`flex flex-col gap-2 transition-opacity duration-300 ${showSaved ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-        <div className="flex gap-4 items-end">
+    <div className="flex flex-col gap-6 mb-8 border-b-2 border-black pb-6">
+      <h1 className="text-3xl font-black tracking-tighter uppercase hidden md:block text-left">
+        İTÜ Ders Programı Oluşturucu
+      </h1>
+
+      <div className="flex flex-col lg:flex-row gap-4 items-end justify-between w-full">
+        {/* Arama Paneli */}
+        <div className={`flex-grow flex flex-wrap xl:flex-nowrap gap-2 items-end transition-opacity duration-300 ${showSaved ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
+          {/* CRN Seçimi */}
+          <div className="flex flex-col w-[70px] flex-shrink-0">
+            <label className="text-xs font-bold text-gray-900 mb-1">CRN</label>
+            <input
+              type="text"
+              placeholder="12345"
+              value={crnFilter}
+              onChange={e => setCrnFilter(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="border-2 border-black p-2 text-sm font-bold"
+            />
+          </div>
+
           {/* Branş Seçimi */}
-          <div>
-            <label className="block text-sm mb-1 font-bold">Branş Kodu</label>
+          <div className="flex flex-col w-[70px]">
+            <label className="text-xs font-bold text-gray-900 mb-1">Branş Kodu</label>
             <div className="relative">
               <button
                 onClick={() => {
                   setIsBranchOpen(!isBranchOpen);
-                  setSearchTerm("");
+                  setBranchSearch("");
                 }}
-                className="flex items-center justify-between border-2 border-black p-2 w-28 text-lg font-bold uppercase bg-white cursor-pointer select-none"
+                className="flex items-center justify-between border-2 border-black p-2 w-full text-sm font-bold bg-white cursor-pointer select-none"
               >
-                <span>{branchCode}</span>
-                <svg className={`fill-current h-4 w-4 transition-transform ${isBranchOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                <span>{branchCode || "-"}</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
               </button>
 
               {isBranchOpen && (
-                <div className="absolute top-full left-0 w-28 overflow-y-auto border-2 border-t-0 border-black bg-white z-[60] shadow-xl custom-scrollbar">
-                  <div className="p-1 border-b-2 border-black/10 bg-gray-50 sticky top-0 z-10">
-                    <input
-                      autoFocus
-                      type="text"
-                      placeholder="ARA..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value.toUpperCase())}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full border border-gray-300 p-1 text-sm font-bold uppercase focus:outline-none focus:border-black placeholder:text-gray-400"
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                    {branchList.filter(item => item.code.includes(searchTerm)).length === 0 ? (
-                      <div className="p-2 text-xs text-gray-500 text-center">Bulunamadı</div>
-                    ) : (
-                      branchList.filter(item => item.code.includes(searchTerm)).map(item => (
-                        <div
-                          key={item.code}
-                          onClick={() => {
-                            setBranchCode(item.code);
-                            setIsBranchOpen(false);
-                            setSearchTerm("");
-                          }}
-                          className={`p-2 cursor-pointer font-bold transition-colors text-sm ${branchCode === item.code ? 'bg-black text-white' : 'hover:bg-gray-200 text-black'}`}
-                        >
-                          {item.code}
-                        </div>
-                      ))
-                    )}
-                  </div>
+                <div className="w-full absolute top-full left-0 max-h-60 overflow-y-auto border-2 border-t-0 border-black bg-white z-[60] shadow-xl custom-scrollbar">
+                  <input
+                    autoFocus
+                    className="w-full p-2 sticky top-0 bg-gray-100 border-b border-gray-300 text-sm outline-none"
+                    type="text"
+                    placeholder="ARA..."
+                    value={branchSearch}
+                    onChange={(e) => setBranchSearch(e.target.value.toUpperCase())}
+                  />
+                  <div
+                    onClick={() => {
+                      setBranchCode("");
+                      setIsBranchOpen(false);
+                    }}
+                    className={`p-2 cursor-pointer font-bold transition-colors text-sm ${branchCode === "" ? 'bg-black text-white' : 'hover:bg-gray-200 text-black'}`}
+                  >-</div>
+                  {branchList.filter(item => item.code.includes(branchSearch)).map(item => (
+                    <div
+                      key={item.code}
+                      onClick={() => {
+                        setBranchCode(item.code);
+                        setIsBranchOpen(false);
+                      }}
+                      className={`p-2 cursor-pointer font-bold transition-colors text-sm ${branchCode === item.code ? 'bg-black text-white' : 'hover:bg-gray-200 text-black'}`}
+                    >
+                      {item.code}
+                    </div>
+                  ))}
                 </div>
               )}
-              {isBranchOpen && <div className="fixed inset-0 z-[55]" onClick={() => setIsBranchOpen(false)} />}
+              {isBranchOpen && <div className="fixed inset-0 z-[50]" onClick={() => setIsBranchOpen(false)} />}
             </div>
           </div>
 
-          {/* Ders Kodu Filtreleme */}
-          <div>
-            <label className="block text-sm mb-1 font-bold">Ders Kodu</label>
+          {/* Ders Kodu Seçimi */}
+          <div className="flex flex-col w-[70px]">
+            <label className="text-xs font-bold text-gray-900 mb-1">Ders Kodu</label>
             <input
               type="text"
+              placeholder="101E"
               value={courseCodeFilter}
               onChange={e => setCourseCodeFilter(e.target.value.toUpperCase())}
-              className="border-2 border-black p-2 w-24 text-lg font-bold uppercase"
+              onKeyDown={handleKeyDown}
+              className="border-2 border-black p-2 text-sm font-bold"
             />
           </div>
 
-          {/* CRN Göster Butonu */}
-          <button
-            onClick={fetchData}
-            disabled={loading}
-            className="bg-black text-white px-6 py-3 font-bold hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? "..." : "CRN Göster"}
-          </button>
-        </div>
-        <div className="text-[11px] text-red-900 italic leading-tight max-w-md">
-          * Not: &quot;MAT103&quot; yazıldığında hem &quot;MAT103&quot; (Türkçe) hem de &quot;MAT103E&quot; (İngilizce) dersleri listelenir.
-          &quot;ING112A&quot;, &quot;FIZ102EL&quot; gibi sonu &quot;E&quot; ile bitmeyen özel kodlu dersler için tam kodu giriniz.
-        </div>
-      </div>
+          {/* Ders Adı Seçimi */}
+          <div className="flex flex-col w-[200px]">
+            <label className="text-xs font-bold text-gray-900 mb-1">Ders Adı</label>
+            <input
+              type="text"
+              placeholder="Örn: Matematik III"
+              value={courseTitleFilter}
+              onChange={e => setCourseTitleFilter(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="border-2 border-black p-2 text-sm font-bold"
+            />
+          </div>
 
-      {/* Program Paneli */}
-      <div className="flex flex-col items-end gap-2">
-        <div className="text-right">
-          <div className="font-bold text-xl">Ders Programım</div>
-          <div className="text-sm text-gray-500 max-w-[250px] break-words">
-            {uniqueCRNs.length} ders eklendi
-            {uniqueCRNs.length > 0 && (
-              <span className="text-xs ml-1 font-mono">
-                ({uniqueCRNs.join(", ")})
-              </span>
+          {/* Eğitmen Seçimi */}
+          <div className="flex flex-col w-[200px]">
+            <label className="text-xs font-bold text-gray-900 mb-1">Eğitmen</label>
+            <input
+              type="text"
+              placeholder="Örn: Aybike Özer"
+              value={instructorFilter}
+              onChange={e => setInstructorFilter(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="border-2 border-black p-2 text-sm font-bold"
+            />
+          </div>
+
+          {/* Arama Butonu */}
+          <button
+            onClick={handleFilter}
+            className="bg-black text-white px-6 py-2 font-bold hover:bg-gray-800 disabled:opacity-50 cursor-pointer"
+          >
+            Dersleri Göster
+          </button>
+
+        </div>
+
+        {/* Program Paneli */}
+        <div className="flex-shrink-0 min-w-fit flex flex-col items-end justify-end ml-4 h-[62px]">
+          <div className="text-right">
+            <div className="text-xl font-bold uppercase tracking-wider">Ders Programım</div>
+            <div className="text-sm text-gray-500 max-w-[250px] break-words">
+              {uniqueCRNs.length} ders eklendi
+              {uniqueCRNs.length > 0 && (
+                <span className="text-xs ml-1 font-mono">
+                  ({uniqueCRNs.join(", ")})
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowSaved(!showSaved)}
+              className={`px-6 py-2 cursor-pointer font-bold border-2 border-black transition-all ${showSaved ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+            >
+              {showSaved ? "🔍 Aramaya Dön" : "📅 Programı Göster"}
+            </button>
+
+            {savedCourses.length > 0 && (
+              <button
+                onClick={() => { if (confirm("Tüm program silinsin mi?")) setSavedCourses([]); }}
+                className="px-3 py-2 text-red-600 font-bold hover:bg-red-50 text-sm underline"
+              >
+                Temizle
+              </button>
             )}
           </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowSaved(!showSaved)}
-            className={`px-4 py-2 cursor-pointer font-bold border-2 border-black transition-all ${showSaved ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`}
-          >
-            {showSaved ? "🔍 Aramaya Dön" : "📅 Programı Göster"}
-          </button>
-
-          {savedCourses.length > 0 && (
-            <button
-              onClick={() => { if (confirm("Tüm program silinsin mi?")) setSavedCourses([]); }}
-              className="px-3 py-2 text-red-600 font-bold hover:bg-red-50 text-sm underline"
-            >
-              Temizle
-            </button>
-          )}
-        </div>
       </div>
-
     </div>
+
   );
 }
