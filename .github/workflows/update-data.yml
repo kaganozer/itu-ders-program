@@ -1,7 +1,7 @@
 name: Update Data
 on:
   schedule:
-    - cron: '0 */1 * * *'
+    - cron: "0 */1 * * *"
   workflow_dispatch:
 jobs:
   update-data:
@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "20"
 
       - name: Install Dependencies
         run: |
@@ -23,7 +23,7 @@ jobs:
 
       - name: Update Data
         run: |
-            node scripts/update-data.js
+          node scripts/update-data.js
 
       - name: Commit and Push Changes
         run: |

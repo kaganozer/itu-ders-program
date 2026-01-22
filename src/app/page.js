@@ -10,7 +10,7 @@ export default function Home() {
   const [branchList] = useState(dbData.branches.map(code => ({ code })));
 
   const [crnFilter, setCrnFilter] = useState("");
-  const [branchCodeFilter, setBranchCodeFilter] = useState("FIZ");
+  const [branchCodeFilter, setBranchCodeFilter] = useState("");
   const [courseCodeFilter, setCourseCodeFilter] = useState("");
   const [courseTitleFilter, setCourseTitleFilter] = useState("");
   const [instructorFilter, setInstructorFilter] = useState("");
@@ -98,15 +98,14 @@ export default function Home() {
         isSaved={isSaved}
       />
 
-      <a
-        className="fixed bottom-10 left-10 text-[16px] text-blue-600 hover:underline"
-        href="https://github.com/kaganozer/"
-      >
-        Hamza Kağan Özer
-      </a>
+      <div className="fixed bottom-0 left-0 text-[16px] flex justify-between w-full py-3 px-9">
+        <a className="text-blue-600 hover:underline" href="https://github.com/kaganozer/">
+          Hamza Kağan Özer
+        </a>
 
-      <div className="fixed bottom-10 right-10 text-[16px] text-gray9500">
-        En son {new Date(dbData.lastUpdated).toLocaleString("tr-TR")} tarihinde güncellendi.
+        <div className="text-gray-900">
+          En son {new Date(dbData.lastUpdated).toLocaleString("tr-TR")} tarihinde güncellendi.
+        </div>
       </div>
     </div>
   );

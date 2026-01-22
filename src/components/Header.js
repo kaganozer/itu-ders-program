@@ -24,10 +24,6 @@ export default function Header({
 
   return (
     <div className="flex flex-col gap-6 mb-8 border-b-2 border-black pb-6">
-      <h1 className="text-3xl font-black tracking-tighter uppercase hidden md:block text-left">
-        İTÜ Ders Programı Oluşturucu
-      </h1>
-
       <div className="flex flex-col lg:flex-row gap-4 items-end justify-between w-full">
         {/* Arama Paneli */}
         <div className={`flex-grow flex flex-wrap xl:flex-nowrap gap-2 items-end transition-opacity duration-300 ${showSaved ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
@@ -148,7 +144,6 @@ export default function Header({
         {/* Program Paneli */}
         <div className="flex-shrink-0 min-w-fit flex flex-col items-end justify-end ml-4 h-[62px]">
           <div className="text-right">
-            <div className="text-xl font-bold uppercase tracking-wider">Ders Programım</div>
             <div className="text-sm text-gray-500 max-w-[250px] break-words">
               {uniqueCRNs.length} ders eklendi
               {uniqueCRNs.length > 0 && (
