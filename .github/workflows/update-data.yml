@@ -29,6 +29,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add src/data/search-data.json
+          git add src/data/courses.json
           git commit -m 'Automated data update' || echo "No changes to commit"
           git push
