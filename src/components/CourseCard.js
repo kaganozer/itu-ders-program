@@ -1,6 +1,11 @@
 import { getGridRow, getDurationSpan, rowColors, dayMapping, compareTimes } from "../utils/helpers";
 
-export default function CourseCard({ group, openDropdownId, setOpenDropdownId, toggleCourse, isSaved }) {
+export default function CourseCard({
+  group,
+  openDropdownId, setOpenDropdownId,
+  toggleCourse,
+  isSaved
+}) {
 
   const colIndex = dayMapping[group.day];
   if (!colIndex) return null;
@@ -21,7 +26,7 @@ export default function CourseCard({ group, openDropdownId, setOpenDropdownId, t
   return (
     <div
       style={{ gridColumn: colIndex, gridRowStart: rowStart, gridRowEnd: `span ${span}`, zIndex: dynamicZIndex }}
-      className={`relative group transition-all hover:!z-50`}
+      className={`relative group transition-all hover:!z-50 text-wrap`}
     >
       <div className={`
         ${colorClass}
@@ -77,7 +82,8 @@ export default function CourseCard({ group, openDropdownId, setOpenDropdownId, t
                     <span className="font-bold text-sm">{course.crn} - {mainCourse.branchCode} {course.courseCode}</span>
                     <span className="text-[10px] bg-white/20 px-1 rounded">{course.startTime}-{course.endTime}</span>
                   </div>
-                  <div className="text-xs text-gray-300 mt-1">{course.instructor}</div>
+                  <div className="text-xs text-gray-300">{course.courseTitle}</div>
+                  <div className="text-xs text-gray-300">{course.instructor}</div>
                   <div className="text-xs font-mono text-yellow-200">{course.courseFormat} - {course.building} {course.classroom}</div>
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleCourse(course); }}

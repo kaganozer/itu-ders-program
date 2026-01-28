@@ -32,6 +32,8 @@ async function fetchCourseData() {
                     if (cells.length === 0) return;
 
                     const crn = $(cells[0]).text().trim();
+                    if (crn === "CRN") return;
+
                     const branchCode = $(cells[1]).text().trim().split(' ')[0];
                     const courseCode = $(cells[1]).text().trim().split(' ')[1];
                     const courseTitle = $(cells[2]).text().trim();

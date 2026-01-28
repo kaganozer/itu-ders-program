@@ -1,9 +1,14 @@
 import { days } from "../utils/helpers";
 import CourseCard from "./CourseCard";
 
-export default function CourseGrid({ groupCourses, openDropdownId, setOpenDropdownId, toggleCourse, isSaved }) {
+export default function CourseGrid({
+  groupCourses,
+  openDropdownId, setOpenDropdownId,
+  toggleCourse,
+  isSaved
+}) {
   return (
-    <div className="grid grid-cols-[5rem_repeat(5,1fr)] grid-rows-[3rem_repeat(18,2rem)] gap-0 border-2 border-black relative">
+    <div className="flex-grow w-full grid grid-cols-[4.5rem_repeat(5,1fr)] grid-rows-[3rem_repeat(18,2rem)] gap-0 border-2 border-black relative">
       <div className="border-r border-b border-black p-2 bg-white"></div>
 
       {/* Gün Sütunları */}
@@ -32,7 +37,7 @@ export default function CourseGrid({ groupCourses, openDropdownId, setOpenDropdo
 
       {/* Ders Blokları */}
       {groupCourses.map((group) => (
-        <CourseCard 
+        <CourseCard
           key={group.key}
           group={group}
           openDropdownId={openDropdownId}

@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "İTÜ Ders Programı",
-  description: "Made by Hamza Kağan Özer",
+  title: "İTÜ Ders Planlayıcı",
+  description: "İTÜ derslerini kolayca arayın, filtreleyin ve haftalık ders programınızı oluşturun. Hamza Kağan Özer tarafından geliştirildi.",
 };
 
 export default function RootLayout({ children }) {

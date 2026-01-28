@@ -1,10 +1,12 @@
 "use client";
 import { useMemo, useState } from "react";
-import Header from "../components/Header";
-import CourseGrid from "../components/CourseGrid";
 import { compareTimes } from "../utils/helpers";
+import Header from "../components/Header";
+import Footer from "@/components/Footer";
+import CourseGrid from "../components/CourseGrid";
 
 import dbData from "../data/courses.json";
+import SideBar from "@/components/SideBar";
 
 export default function Home() {
   const [branchList] = useState(dbData.branches.map(code => ({ code })));
@@ -76,37 +78,46 @@ export default function Home() {
     return Object.values(groups);
   }, [activeData]);
 
+
   return (
-    <div className="min-h-screen bg-white text-black p-8 font-sans">
+    <div className="min-h-screen bg-white text-black py-8 px-[5rem] font-sans">
       <Header
-        branchList={branchList}
         crnFilter={crnFilter} setCrnFilter={setCrnFilter}
         branchCode={branchCodeFilter} setBranchCode={setBranchCodeFilter}
         courseCodeFilter={courseCodeFilter} setCourseCodeFilter={setCourseCodeFilter}
         courseTitleFilter={courseTitleFilter} setCourseTitleFilter={setCourseTitleFilter}
         instructorFilter={instructorFilter} setInstructorFilter={setInstructorFilter}
         handleFilter={handleFilter}
-        savedCourses={savedCourses} setSavedCourses={setSavedCourses}
-        showSaved={showSaved} setShowSaved={setShowSaved}
+        showSaved={showSaved}
+        allOptions={{
+          crns: [...new Set(dbData.courses.map(course => course.crn))],
+          branchCodes: [...new Set(dbData.courses.map(course => course.branchCode))],
+          courseCodes: [...new Set(dbData.courses.map(course => course.courseCode))],
+          courseTitles: [...new Set(dbData.courses.map(course => course.courseTitle))],
+          instructors: [...new Set(dbData.courses.map(course => course.instructor))],
+        }}
       />
 
-      <CourseGrid
-        groupCourses={groupCourses}
-        openDropdownId={openDropdownId}
-        setOpenDropdownId={setOpenDropdownId}
-        toggleCourse={toggleCourse}
-        isSaved={isSaved}
-      />
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        {/* Takvim */}
+        <CourseGrid
+          groupCourses={groupCourses}
+          openDropdownId={openDropdownId}
+          setOpenDropdownId={setOpenDropdownId}
+          toggleCourse={toggleCourse}
+          isSaved={isSaved}
+        />
 
-      <div className="fixed bottom-0 left-0 text-[16px] flex justify-between w-full py-3 px-9">
-        <a className="text-blue-600 hover:underline" href="https://github.com/kaganozer/">
-          Hamza Kağan Özer
-        </a>
-
-        <div className="text-gray-900">
-          En son {new Date(dbData.lastUpdated).toLocaleString("tr-TR")} tarihinde güncellendi.
-        </div>
+        {/* Program Paneli */}
+        <SideBar
+          savedCourses={savedCourses} setSavedCourses={setSavedCourses}
+          showSaved={showSaved} setShowSaved={setShowSaved}
+          toggleCourse={toggleCourse}
+        />
       </div>
+
+      <Footer />
+
     </div>
   );
 }
