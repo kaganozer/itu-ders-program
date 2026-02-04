@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { compareTimes } from "../utils/helpers";
 import Header from "../components/Header";
 import Footer from "@/components/Footer";
@@ -9,8 +9,6 @@ import dbData from "../data/courses.json";
 import SideBar from "@/components/SideBar";
 
 export default function Home() {
-  const [branchList] = useState(dbData.branches.map(code => ({ code })));
-
   const [crnFilter, setCrnFilter] = useState("");
   const [branchCodeFilter, setBranchCodeFilter] = useState("");
   const [courseCodeFilter, setCourseCodeFilter] = useState("");
@@ -21,6 +19,8 @@ export default function Home() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [savedCourses, setSavedCourses] = useState([]);
   const [showSaved, setShowSaved] = useState(false);
+
+  const calendarRef = useRef(null);
 
   const handleFilter = () => {
     setOpenDropdownId(null);
@@ -42,6 +42,10 @@ export default function Home() {
       return true;
     });
     setScheduleData(filtered);
+
+    if (calendarRef.current) {
+      calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   const toggleCourse = (course) => {
@@ -78,9 +82,35 @@ export default function Home() {
     return Object.values(groups);
   }, [activeData]);
 
+  const allOptions = useMemo(() => {
+    const sets = {
+      crns: new Set(),
+      branchCodes: new Set(),
+      courseCodes: new Set(),
+      courseTitles: new Set(),
+      instructors: new Set()
+    };
+
+    dbData.courses.forEach(course => {
+      sets.crns.add(course.crn);
+      sets.branchCodes.add(course.branchCode);
+      sets.courseCodes.add(course.courseCode);
+      sets.courseTitles.add(course.courseTitle);
+      sets.instructors.add(course.instructor);
+    });
+
+    return {
+      crns: [...sets.crns],
+      branchCodes: [...sets.branchCodes],
+      courseCodes: [...sets.courseCodes],
+      courseTitles: [...sets.courseTitles],
+      instructors: [...sets.instructors]
+    };
+  }, []);
+
 
   return (
-    <div className="min-h-screen bg-white text-black py-8 px-[5rem] font-sans">
+    <div className="min-h-screen bg-white text-black p-4 md:p-6 lg:px-12 lg:py-8 font-sans">
       <Header
         crnFilter={crnFilter} setCrnFilter={setCrnFilter}
         branchCode={branchCodeFilter} setBranchCode={setBranchCodeFilter}
@@ -89,16 +119,10 @@ export default function Home() {
         instructorFilter={instructorFilter} setInstructorFilter={setInstructorFilter}
         handleFilter={handleFilter}
         showSaved={showSaved}
-        allOptions={{
-          crns: [...new Set(dbData.courses.map(course => course.crn))],
-          branchCodes: [...new Set(dbData.courses.map(course => course.branchCode))],
-          courseCodes: [...new Set(dbData.courses.map(course => course.courseCode))],
-          courseTitles: [...new Set(dbData.courses.map(course => course.courseTitle))],
-          instructors: [...new Set(dbData.courses.map(course => course.instructor))],
-        }}
+        allOptions={allOptions}
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start scroll-mt-8" ref={calendarRef}>
         {/* Takvim */}
         <CourseGrid
           groupCourses={groupCourses}

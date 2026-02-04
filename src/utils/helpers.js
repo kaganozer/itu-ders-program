@@ -1,22 +1,19 @@
 export const days = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"];
-
 export const dayMapping = Object.fromEntries(days.map((day, index) => [day, index + 2]));
 
-export const getGridRow = (timeStr) => {
+export const getGridRow = (timeStr, baseStartHour = 8, baseStartMinute = 30) => {
   if (!timeStr) return 1;
   const [hour, minute] = timeStr.split(":").map(Number);
-  const minutesFromStart = (hour - 8) * 60 + (minute - 30);
+  const minutesFromStart = (hour - baseStartHour) * 60 + (minute - baseStartMinute);
   const rowOffset = Math.floor(minutesFromStart / 30);
   return rowOffset + 2;
 };
 
 export const getDurationSpan = (startStr, endStr) => {
-  if (!startStr || !endStr) return 2;
-  const startRow = getGridRow(startStr);
-  const [endH, endM] = endStr.split(":").map(Number);
-  const minutesFromStart = (endH - 8) * 60 + (endM - 30);
-  const endRow = Math.ceil(minutesFromStart / 30) + 2;
-  return endRow - startRow;
+    if (!startStr || !endStr) return 2;
+    const [startH, startM] = startStr.split(":").map(Number);
+    const [endH, endM] = endStr.split(":").map(Number);
+    return Math.ceil(((endH * 60 + endM) - (startH * 60 + startM)) / 30);
 };
 
 export const compareTimes = (time1, time2) => {
