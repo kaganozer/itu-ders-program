@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import { compareTimes } from "../utils/helpers";
 import Header from "../components/Header";
 import Footer from "@/components/Footer";
@@ -21,6 +21,16 @@ export default function Home() {
   const [showSaved, setShowSaved] = useState(false);
 
   const calendarRef = useRef(null);
+  const headerRef = useRef(null);
+
+  const scrollToCalendar = () => {
+    calendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const scrollToHeader = () => {
+    headerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const savedCRNs = useMemo(() => new Set(savedCourses.map(c => c.crn)), [savedCourses]);
 
   const handleFilter = () => {
     setOpenDropdownId(null);
@@ -43,21 +53,18 @@ export default function Home() {
     });
     setScheduleData(filtered);
 
-    if (calendarRef.current) {
-      calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setShowSaved(false);
+    scrollToCalendar();
   }
 
-  const toggleCourse = (course) => {
+  const toggleCourse = useCallback((course) => {
     setSavedCourses((prev) => {
       const exists = prev.find((c) => c.crn === course.crn);
       return exists
         ? prev.filter((c) => c.crn !== course.crn)
         : [...prev, ...dbData.courses.filter(c => c.crn === course.crn)];
     });
-  };
-
-  const isSaved = (crn) => savedCourses.some((c) => c.crn === crn);
+  }, []);
 
   const activeData = showSaved ? savedCourses : scheduleData;
 
@@ -111,16 +118,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-black p-4 md:p-6 lg:px-12 lg:py-8 font-sans">
-      <Header
-        crnFilter={crnFilter} setCrnFilter={setCrnFilter}
-        branchCode={branchCodeFilter} setBranchCode={setBranchCodeFilter}
-        courseCodeFilter={courseCodeFilter} setCourseCodeFilter={setCourseCodeFilter}
-        courseTitleFilter={courseTitleFilter} setCourseTitleFilter={setCourseTitleFilter}
-        instructorFilter={instructorFilter} setInstructorFilter={setInstructorFilter}
-        handleFilter={handleFilter}
-        showSaved={showSaved}
-        allOptions={allOptions}
-      />
+      <div ref={headerRef}>
+        <Header
+          crnFilter={crnFilter} setCrnFilter={setCrnFilter}
+          branchCode={branchCodeFilter} setBranchCode={setBranchCodeFilter}
+          courseCodeFilter={courseCodeFilter} setCourseCodeFilter={setCourseCodeFilter}
+          courseTitleFilter={courseTitleFilter} setCourseTitleFilter={setCourseTitleFilter}
+          instructorFilter={instructorFilter} setInstructorFilter={setInstructorFilter}
+          handleFilter={handleFilter}
+          showSaved={showSaved}
+          allOptions={allOptions}
+        />
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6 items-start scroll-mt-8" ref={calendarRef}>
         {/* Takvim */}
@@ -129,7 +138,7 @@ export default function Home() {
           openDropdownId={openDropdownId}
           setOpenDropdownId={setOpenDropdownId}
           toggleCourse={toggleCourse}
-          isSaved={isSaved}
+          savedCRNs={savedCRNs}
         />
 
         {/* Program Paneli */}
@@ -137,11 +146,12 @@ export default function Home() {
           savedCourses={savedCourses} setSavedCourses={setSavedCourses}
           showSaved={showSaved} setShowSaved={setShowSaved}
           toggleCourse={toggleCourse}
+          onScrollToCalendar={scrollToCalendar}
+          onScrollToHeader={scrollToHeader}
         />
       </div>
 
       <Footer />
-
     </div>
   );
 }

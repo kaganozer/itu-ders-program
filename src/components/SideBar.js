@@ -4,7 +4,9 @@ import dbData from "../data/courses.json";
 export default function SideBar({
     savedCourses, setSavedCourses,
     showSaved, setShowSaved,
-    toggleCourse
+    toggleCourse,
+    onScrollToCalendar,
+    onScrollToHeader
 }) {
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState("20418, 23540, 23554, 23556, 20868, 20079");
@@ -58,7 +60,11 @@ export default function SideBar({
             <div className="flex gap-2">
                 {/* Programı Göster Butonu */}
                 <button
-                    onClick={() => setShowSaved(!showSaved)}
+                    onClick={() => {
+                        if (showSaved) onScrollToHeader();
+                        else onScrollToCalendar();
+                        setShowSaved(!showSaved);
+                    }}
                     className={`
                         flex-grow py-3 px-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-sm
                         ${showSaved
