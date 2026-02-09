@@ -61,7 +61,7 @@ export default function SideBar({
                 {/* Programı Göster Butonu */}
                 <button
                     onClick={() => {
-                        onScrollToCalendar();
+                        if (!showSaved) onScrollToCalendar();
                         setShowSaved(!showSaved);
                     }}
                     className={`
