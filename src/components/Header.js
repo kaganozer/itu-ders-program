@@ -54,7 +54,7 @@ const SearchInput = ({ label, value, onChange, placeholder, options = [], onEnte
       </div>
 
       {showSuggestions && options.length > 0 && filteredOptions.length > 0 && (
-        <div className="absolute top-full left-0 min-w-[200px] w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg mt-1 z-[100] shadow-xl custom-scrollbar">
+        <div className="absolute top-full left-0 w-full max-h-48 overflow-y-auto bg-white border border-gray-200 rounded-lg mt-1 z-[100] shadow-xl custom-scrollbar">
           {filteredOptions.map((opt, idx) => (
             <div
               key={idx}

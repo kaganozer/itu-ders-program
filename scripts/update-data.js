@@ -38,7 +38,7 @@ async function fetchCourseData() {
                     const courseCode = $(cells[1]).text().trim().split(' ')[1];
                     const courseTitle = $(cells[2]).text().trim();
                     const courseFormat = $(cells[3]).text().trim() === "Fiziksel (Yüz yüze)" ? "Yüz yüze" : "Çevrim içi";
-                    const instructor = $(cells[4]).text().trim().replace("-", "Eğitmen bilgisi yok");
+                    const instructor = $(cells[4]).text().trim().replace(/^-$/, "Eğitmen Bilgisi Yok");
                     const buildings = $(cells[5]).find("a").html()?.split("<br>") || [];
                     const days = $(cells[6]).html()?.split('<br>') || [];
                     const times = $(cells[7]).html()?.split('<br>') || [];

@@ -37,7 +37,7 @@ const CourseCard = memo(function CourseCard({
     : "bg-white border-2 border-dashed border-gray-400 hover:border-gray-600 hover:bg-gray-50";
   const textColorClass = isMainSaved ? "text-white" : "text-gray-900 font-medium";
   const dynamicZIndex = isOpen ? 100 : (isMainSaved ? 40 : 10 + rowStart);
-  const isFull = mainCourse.enrolled >= mainCourse.capacity;
+  const isFull = parseInt(mainCourse.enrolled) >= parseInt(mainCourse.capacity);
 
   return (
     <div
@@ -56,10 +56,15 @@ const CourseCard = memo(function CourseCard({
       {/* Kart Gövdesi */}
       <div
         className={`
-                h-full w-full p-1.5 rounded-lg flex flex-col gap-0.5 shadow-sm overflow-hidden
+                w-full p-1.5 rounded-lg flex flex-col gap-0.5 shadow-sm
                 ${bgColorClass} ${textColorClass}
                 ${isMainSaved ? "shadow-md" : "opacity-100"} 
                 transition-all cursor-default
+                h-full overflow-hidden
+                group-hover:h-auto group-hover:min-h-full group-hover:overflow-visible
+                group-hover:absolute group-hover:top-0 group-hover:left-0 group-hover:z-50
+                group-hover:w-full
+                ${isMainSaved ? '' : 'group-hover:bg-white'}
             `}
       >
         {/* Başlık ve Saat */}
@@ -70,7 +75,7 @@ const CourseCard = memo(function CourseCard({
               {mainCourse.branchCode} {mainCourse.courseCode}
             </div>
           </div>
-          <div className={`text-[9px] font-mono whitespace-nowrap px-1 rounded leading-tight ${isMainSaved ? "bg-black/10 opacity-90" : "bg-gray-100 text-gray-600 font-bold"}`}>
+          <div className={`font-mono px-1.5 py-0.5 rounded text-[10px] leading-tight ${isMainSaved ? "bg-black/10 opacity-90" : "bg-gray-100 text-gray-600 font-bold"}`}>
             {mainCourse.startTime}-{mainCourse.endTime}
           </div>
         </div>
@@ -88,16 +93,16 @@ const CourseCard = memo(function CourseCard({
           )}
 
           {/* Ders Adı */}
-          <div className="text-[10px] font-bold leading-tight whitespace-normal line-clamp-2 break-words mt-0.5" title={mainCourse.courseTitle}>
+          <div className="text-[10px] font-bold leading-tight whitespace-normal line-clamp-2 break-words mt-0.5">
             {mainCourse.courseTitle}
           </div>
           {/* CRN */}
-          <div className={`flex items-center gap-0.5 text-[9px] leading-tight whitespace-normal line-clamp-1 break-words ${isMainSaved ? "opacity-80" : "text-gray-500 font-medium"}`} title={mainCourse.instructor}>
+          <div className={`flex items-center gap-0.5 text-[9px] leading-tight whitespace-normal line-clamp-1 break-words ${isMainSaved ? "opacity-80" : "text-gray-500 font-medium"}`}>
             <Icons.Hash />
             <span className="truncate">{mainCourse.crn}</span>
           </div>
           {/* Eğitmen */}
-          <div className={`flex items-center gap-0.5 text-[9px] leading-tight whitespace-normal line-clamp-1 break-words ${isMainSaved ? "opacity-80" : "text-gray-500 font-medium"}`} title={mainCourse.instructor}>
+          <div className={`flex items-center gap-0.5 text-[9px] leading-tight whitespace-normal line-clamp-1 break-words ${isMainSaved ? "opacity-80" : "text-gray-500 font-medium"}`}>
             <Icons.User />
             <span>{mainCourse.instructor}</span>
           </div>
@@ -127,49 +132,87 @@ const CourseCard = memo(function CourseCard({
           <button
             onClick={(e) => { e.stopPropagation(); toggleCourse(mainCourse); }}
             className={`
-                cursor-pointer px-2 py-0.5 rounded text-[9px] font-bold transition-all shadow-sm active:scale-95 flex-shrink-0
+                cursor-pointer px-2 py-0.5 rounded text-[9px] font-bold transition-all shadow-sm active:scale-95 flex-shrink-0 uppercase
                 ${isMainSaved
                 ? "bg-white hover:bg-red-50 hover:text-red-600 text-gray-800 ring-1 ring-black/5"
                 : "bg-black text-white hover:bg-gray-800"} 
             `}
           >
-            {isMainSaved ? "SİL" : "EKLE"}
+            {isMainSaved ? "Çıkar" : "Ekle"}
           </button>
         </div>
       </div>
 
       {/* Diğer CRN'ler */}
       {isOpen && (
-        <div className={`absolute top-0 w-56 bg-white text-black p-2 rounded-lg shadow-xl border border-gray-300 z-[200] ${["Perşembe", "Cuma"].includes(group.day)
-          ? "right-full mr-1"
-          : "left-full ml-1"
-          }`}
-        >
+        <div className={`
+            absolute top-0 w-64 bg-white text-black py-2 px-3 rounded-xl shadow-2xl border border-gray-300 z-[200]
+            ${["Perşembe", "Cuma"].includes(group.day) ? "right-full mr-2" : "left-full ml-2"}
+        `}>
+          {/* Başlık */}
           <div className="flex justify-between items-center border-b border-gray-100 pb-1 mb-1">
-            <span className="font-bold text-[10px] uppercase text-gray-500">Alternatifler</span>
-            <button onClick={() => setOpenDropdownId(null)} className="text-gray-400 hover:text-red-600 font-bold px-1">✕</button>
+            <span className="font-black text-xs uppercase text-gray-500 tracking-wider flex items-center gap-1">Alternatifler</span>
+            <button onClick={() => setOpenDropdownId(null)} className="text-gray-400 hover:text-red-600transition-colors p-1">✕</button>
           </div>
-          <div className="max-h-48 overflow-y-auto flex flex-col gap-1 custom-scrollbar">
+
+          {/* Ders Listesi */}
+          <div className="max-h-64 overflow-y-auto flex flex-col gap-2 custom-scrollbar pr-1">
             {sortedCourses.map((course) => {
               const isCourseSaved = savedCRNs.has(course.crn);
+              const isCourseFull = parseInt(course.enrolled) >= parseInt(course.capacity);
+
               return (
                 <div
                   key={course.crn}
                   className={`
-                    relative p-1.5 rounded border text-[10px]
-                    ${isCourseSaved ? 'bg-blue-50 border-blue-400 text-blue-900' : 'bg-white border-gray-200 hover:border-gray-400'}
+                    relative p-2 rounded-lg border text-[11px] transition-all duration-200
+                    ${isCourseSaved
+                      ? 'bg-blue-50 border-blue-300 ring-1 ring-blue-200'
+                      : 'bg-white border-gray-200 hover:border-gray-400 hover:shadow-sm'}
                   `}
                 >
-                  <div className="flex justify-between font-bold mb-0.5">
-                    <span>{course.crn}</span>
-                    <span>{course.startTime}-{course.endTime}</span>
+                  {/* Ders Kodu ve Saat */}
+                  <div className="flex justify-between items-center mb-1 border-b border-black/5 pb-1">
+                    <span className="font-bold text-black text-xs flex items-center gap-1">
+                      <Icons.Tag /> {course.branchCode} {course.courseCode}
+                    </span>
+                    <span className="font-mono font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">
+                      {course.startTime}-{course.endTime}
+                    </span>
                   </div>
-                  <div className="truncate opacity-80 mb-1">{course.instructor}</div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500">{course.building} {course.classroom}</span>
+
+                  {/* Ders Adı */}
+                  <div className="font-bold text-gray-900 leading-tight mb-1">
+                    {course.courseTitle}
+                  </div>
+
+                  {/* Ders Bilgileri */}
+                  <div className="flex flex-col text-gray-600">
+                    <div className="flex items-center gap-1.5">
+                      <Icons.Hash /> <span className="font-mono text-gray-800">{course.crn}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 truncate">
+                      <Icons.User /> <span>{course.instructor}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 truncate">
+                      <Icons.Location /> <span>{course.courseFormat === "Yüzyüze" ? "" : course.courseFormat} {course.building} {course.classroom}</span>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-between items-center mt-1 pt-1 border-t border-gray-100">
+                    <div className={`flex items-center gap-1 font-mono ${isCourseFull ? 'text-red-600 font-bold' : 'text-gray-500'}`}>
+                      <Icons.Users /> {course.enrolled}/{course.capacity}
+                    </div>
+
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleCourse(course); }}
-                      className={`px-1.5 rounded font-bold ${isCourseSaved ? 'bg-red-100 text-red-600' : 'bg-gray-800 text-white hover:bg-black'}`}
+                      className={`
+                        w-5 h-5 rounded text-[10px] font-bold shadow-sm transition-colors
+                        ${isCourseSaved
+                          ? 'bg-red-100 text-red-600 hover:bg-red-200 border border-red-200'
+                          : 'bg-black text-white hover:bg-gray-800'}
+                      `}
                     >
                       {isCourseSaved ? "-" : "+"}
                     </button>

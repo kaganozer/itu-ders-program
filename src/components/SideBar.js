@@ -9,7 +9,7 @@ export default function SideBar({
     onScrollToHeader
 }) {
     const [showImport, setShowImport] = useState(false);
-    const [importText, setImportText] = useState("20418, 23540, 23554, 23556, 20868, 20079");
+    const [importText, setImportText] = useState("20418, 23540, 23554, 23556, 20868, 20075");
     const [copied, setCopied] = useState(false);
 
     const uniqueCourses = [];
@@ -61,15 +61,14 @@ export default function SideBar({
                 {/* Programı Göster Butonu */}
                 <button
                     onClick={() => {
-                        if (showSaved) onScrollToHeader();
-                        else onScrollToCalendar();
+                        onScrollToCalendar();
                         setShowSaved(!showSaved);
                     }}
                     className={`
-                        flex-grow py-3 px-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-sm
+                        flex-grow py-3 px-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm text-sm border border-gray-300
                         ${showSaved
-                            ? 'bg-gray-900 text-white hover:bg-black ring-2 ring-gray-900 ring-offset-2'
-                            : 'bg-white text-gray-900 border border-gray-300 hover:bg-gray-50'}
+                            ? 'bg-gray-900 text-white hover:bg-black ring-2 ring-gray-900 ring-offset-0.5'
+                            : 'bg-white text-gray-900 hover:bg-gray-50'}
                     `}
                 >
                     {showSaved ? (
