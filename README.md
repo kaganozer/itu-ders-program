@@ -1,5 +1,7 @@
 # İTÜ Ders Programı
 
-İTÜ'de seçmek istediğin derslerin CRN'lerini bulmanı kolaylaştıracak bir takvim programı.
+İTÜ öğrencilerinin ders seçimi döneminde seçmek istediği dersleri filtreyebilmelerini kolaylaştıran ve ders programlarını görüntüleyebilmelerini sağlayan bir takvim uygulaması.
 
 Hamza Kağan Özer, 2026
+
+_Resmi İTÜ uygulaması değildir._
