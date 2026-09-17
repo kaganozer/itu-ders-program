@@ -9,7 +9,7 @@ export default function SideBar({
     onScrollToHeader
 }) {
     const [showImport, setShowImport] = useState(false);
-    const [importText, setImportText] = useState("13808, 13806, 13784, 13773, 13775, 14014");
+    const [importText, setImportText] = useState("13808, 13806, 13784, 13773, 13775, 14014, 10754, 13781");
     const [copied, setCopied] = useState(false);
 
     const uniqueCourses = [];
